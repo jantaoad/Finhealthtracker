@@ -1,7 +1,6 @@
 import React from 'react'
 import { budgetService } from '../services/api'
 import { formatCurrency } from '../utils/helpers'
-import { Plus, AlertCircle, Edit2, Trash2 } from 'lucide-react'
 
 export default function BudgetsPage() {
   const [budgets, setBudgets] = React.useState([])
@@ -42,168 +41,116 @@ export default function BudgetsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600 font-medium">Loading budgets...</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontWeight: 'bold', color: '#666' }}>Loading budgets...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white shadow-lg">
-        <h1 className="text-4xl font-bold mb-2">💰 Budgets</h1>
-        <p className="text-blue-100">Manage and track your monthly budgets</p>
+    <div style={{ padding: '20px' }}>
+      <div style={{ backgroundColor: '#3b82f6', color: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0' }}>💰 Budgets</h1>
+        <p style={{ margin: '10px 0 0 0', color: '#e0f2fe' }}>Manage and track your budgets</p>
       </div>
 
-      {/* Create Button */}
       <button
         onClick={() => setShowModal(true)}
-        className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all"
+        style={{
+          backgroundColor: '#3b82f6',
+          color: 'white',
+          padding: '10px 20px',
+          border: 'none',
+          borderRadius: '4px',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          marginBottom: '20px'
+        }}
       >
-        <Plus className="w-5 h-5" /> Create Budget
+        + Create Budget
       </button>
 
-      {/* Budgets Grid */}
-      <div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '15px' }}>
         {budgets.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {budgets.map((budget) => {
-              const limit = parseFloat(budget.limit) || 0
-              const spent = parseFloat(budget.spent) || 0
-              const percentage = limit > 0 ? (spent / limit) * 100 : 0
-              const isExceeded = percentage > 100
-              const isWarning = percentage > 80
+          budgets.map((budget) => {
+            const limit = parseFloat(budget.limit) || 0
+            const spent = parseFloat(budget.spent) || 0
+            const percentage = limit > 0 ? (spent / limit) * 100 : 0
 
-              return (
-                <div
-                  key={budget.id}
-                  className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow p-6 border border-gray-100"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900 capitalize">
-                        {budget.category}
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">Monthly Budget</p>
-                    </div>
-                    {isExceeded && (
-                      <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                        <AlertCircle className="w-6 h-6 text-red-600" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="space-y-3 mb-6">
-                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                      <div
-                        className={`h-3 rounded-full transition-all ${
-                          isExceeded ? 'bg-red-500' : isWarning ? 'bg-yellow-500' : 'bg-green-500'
-                        }`}
-                        style={{ width: `${Math.min(percentage, 100)}%` }}
-                      />
-                    </div>
-
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">
-                        ${spent.toFixed(2)} of ${limit.toFixed(2)}
-                      </span>
-                      <span className={`text-sm font-bold ${
-                        isExceeded ? 'text-red-600' : isWarning ? 'text-yellow-600' : 'text-green-600'
-                      }`}>
-                        {percentage.toFixed(1)}%
-                      </span>
-                    </div>
-
-                    {isExceeded && (
-                      <p className="text-sm text-red-600 font-semibold">
-                        ⚠️ Over budget by ${(spent - limit).toFixed(2)}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Status Badge */}
-                  <div className="mb-4 p-3 rounded-xl" style={{
-                    backgroundColor: isExceeded ? '#fee2e2' : isWarning ? '#fef3c7' : '#dcfce7'
-                  }}>
-                    <p style={{
-                      color: isExceeded ? '#991b1b' : isWarning ? '#92400e' : '#166534'
-                    }} className="text-sm font-semibold">
-                      {isExceeded ? '❌ Exceeded' : isWarning ? '⚠️ Warning' : '✅ On Track'}
-                    </p>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2 pt-4 border-t border-gray-200">
-                    <button className="flex-1 flex items-center justify-center gap-2 text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-lg font-medium transition-all">
-                      <Edit2 className="w-4 h-4" /> Edit
-                    </button>
-                    <button className="flex-1 flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg font-medium transition-all">
-                      <Trash2 className="w-4 h-4" /> Delete
-                    </button>
-                  </div>
+            return (
+              <div key={budget.id} style={{
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                padding: '15px',
+                border: '1px solid #e5e7eb',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+              }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 'bold', color: '#333', margin: '0 0 10px 0', textTransform: 'capitalize' }}>
+                  {budget.category}
+                </h3>
+                <div style={{
+                  width: '100%',
+                  height: '8px',
+                  backgroundColor: '#e5e7eb',
+                  borderRadius: '4px',
+                  overflow: 'hidden',
+                  marginBottom: '10px'
+                }}>
+                  <div style={{
+                    width: `${Math.min(percentage, 100)}%`,
+                    height: '100%',
+                    backgroundColor: percentage > 100 ? '#ef4444' : percentage > 80 ? '#f59e0b' : '#10b981'
+                  }}></div>
                 </div>
-              )
-            })}
-          </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#666' }}>
+                  <span>₹{spent.toFixed(2)} / ₹{limit.toFixed(2)}</span>
+                  <span style={{ fontWeight: 'bold' }}>{percentage.toFixed(0)}%</span>
+                </div>
+              </div>
+            )
+          })
         ) : (
-          <div className="text-center py-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border-2 border-dashed border-blue-200">
-            <p className="text-lg font-semibold text-gray-900 mb-2">No budgets created yet</p>
-            <p className="text-gray-600 mb-6">Start managing your expenses by creating your first budget</p>
-            <button
-              onClick={() => setShowModal(true)}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
-            >
-              Create Budget Now
-            </button>
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', color: '#666' }}>
+            <p>No budgets yet - Click "Create Budget" to get started</p>
           </div>
         )}
       </div>
 
-      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Create Budget</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <select
-                value={formData.category}
-                onChange={(e) => setFormData({...formData, category: e.target.value})}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
-              >
-                <option value="groceries">Groceries</option>
-                <option value="dining">Dining</option>
-                <option value="entertainment">Entertainment</option>
-                <option value="transportation">Transportation</option>
-                <option value="utilities">Utilities</option>
-                <option value="healthcare">Healthcare</option>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '20px',
+            maxWidth: '400px',
+            width: '90%'
+          }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '15px' }}>Create Budget</h2>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}>
+                <option>groceries</option>
+                <option>dining</option>
+                <option>entertainment</option>
+                <option>transportation</option>
+                <option>utilities</option>
               </select>
-              <input
-                type="number"
-                placeholder="Budget Limit"
-                value={formData.limit}
-                onChange={(e) => setFormData({...formData, limit: e.target.value})}
-                required
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
-              />
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
-                >
-                  Create
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300 transition-all"
-                >
-                  Cancel
-                </button>
+              <input type="number" placeholder="Limit" value={formData.limit} onChange={(e) => setFormData({...formData, limit: e.target.value})} required style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} />
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="submit" style={{ flex: 1, padding: '10px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Create</button>
+                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: '10px', backgroundColor: '#e5e7eb', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>
               </div>
             </form>
           </div>

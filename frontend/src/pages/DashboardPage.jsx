@@ -1,129 +1,234 @@
-import React from 'react'
-import { useAuth } from '../context/AuthContext'
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { insightService } from '../services/api'
-import Dashboard from '../components/Dashboard'
-import { TrendingUp, Target, AlertCircle, Zap } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 export default function DashboardPage() {
-  const { user } = useAuth()
-  const [dashboardData, setDashboardData] = React.useState(null)
-  const [insights, setInsights] = React.useState([])
-  const [predictions, setPredictions] = React.useState([])
-  const [loading, setLoading] = React.useState(true)
+  const [insights, setInsights] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
 
-  React.useEffect(() => {
-    loadDashboardData()
-  }, [])
-
-  const loadDashboardData = async () => {
-    try {
-      setLoading(true)
-      const [dashRes, insRes, predRes] = await Promise.all([
-        insightService.getDashboard(),
-        insightService.getInsights(),
-        insightService.getPredictions()
-      ])
-      setDashboardData(dashRes.data)
-      setInsights(insRes.data)
-      setPredictions(predRes.data)
-    } catch (error) {
-      console.error('Failed to load dashboard:', error)
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    const fetchInsights = async () => {
+      try {
+        const response = await insightService.getDashboard()
+        setInsights(response.data)
+      } catch (err) {
+        console.error('Error fetching insights:', err)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+
+    fetchInsights()
+  }, [])
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
-        </div>
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <p>Loading...</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
+    <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6', padding: '20px' }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white shadow-lg">
-        <h1 className="text-4xl font-bold mb-2">Welcome back, {user?.name}! 👋</h1>
-        <p className="text-blue-100">Here's your financial overview for this month</p>
-      </div>
-
-      <Dashboard data={dashboardData} />
-
-      {/* Quick Stats */}
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Financial Summary</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Total Spent"
-            value={`$${dashboardData?.totalSpent || 0}`}
-            icon={<TrendingUp className="w-6 h-6" />}
-            color="blue"
-          />
-          <StatCard
-            title="Saved This Month"
-            value={`$${dashboardData?.totalSaved || 0}`}
-            icon={<Target className="w-6 h-6" />}
-            color="green"
-          />
-          <StatCard
-            title="Budget Alert"
-            value={`${dashboardData?.budgetAlert || 0}%`}
-            icon={<AlertCircle className="w-6 h-6" />}
-            color="yellow"
-          />
-          <StatCard
-            title="AI Insights"
-            value={insights.length}
-            icon={<Zap className="w-6 h-6" />}
-            color="purple"
-          />
+      <div style={{
+        backgroundColor: 'white',
+        padding: '20px',
+        borderRadius: '8px',
+        marginBottom: '20px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+      }}>
+        <h1 style={{ margin: 0, color: '#333' }}>FinHealthTracker Dashboard</h1>
+        <div>
+          <span style={{ marginRight: '15px', color: '#666' }}>Welcome, {user?.email}</span>
+          <button
+            onClick={() => {
+              logout()
+              navigate('/login')
+            }}
+            style={{
+              padding: '8px 15px',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Logout
+          </button>
         </div>
       </div>
 
-      {/* Recent Insights */}
-      {insights.length > 0 && (
-        <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">💡 AI-Generated Insights</h2>
-          <div className="space-y-4">
-            {insights.slice(0, 3).map((insight, idx) => (
-              <div
-                key={idx}
-                className="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-xl hover:shadow-md transition-shadow"
-              >
-                <p className="font-semibold text-blue-900">{insight.title}</p>
-                <p className="text-sm text-blue-700 mt-2">{insight.description}</p>
-              </div>
-            ))}
-          </div>
+      {/* Main Content */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: '20px',
+        marginBottom: '20px'
+      }}>
+        {/* Total Income */}
+        <div style={{
+          backgroundColor: 'white',
+          padding: '20px',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: '#666', fontSize: '14px', margin: '0 0 10px 0' }}>Total Income</h3>
+          <p style={{ fontSize: '28px', fontWeight: 'bold', color: '#10b981', margin: 0 }}>
+            ₹{insights?.totalIncome || 0}
+          </p>
         </div>
-      )}
-    </div>
-  )
-}
 
-function StatCard({ title, value, icon, color = 'blue' }) {
-  const colorClasses = {
-    blue: 'from-blue-500 to-blue-600 text-blue-600 bg-blue-50',
-    green: 'from-green-500 to-green-600 text-green-600 bg-green-50',
-    yellow: 'from-yellow-500 to-yellow-600 text-yellow-600 bg-yellow-50',
-    purple: 'from-purple-500 to-purple-600 text-purple-600 bg-purple-50'
-  }
+        {/* Total Expenses */}
+        <div style={{
+          backgroundColor: 'white',
+          padding: '20px',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: '#666', fontSize: '14px', margin: '0 0 10px 0' }}>Total Expenses</h3>
+          <p style={{ fontSize: '28px', fontWeight: 'bold', color: '#ef4444', margin: 0 }}>
+            ₹{insights?.totalExpense || 0}
+          </p>
+        </div>
 
-  const [gradientClass, textClass, bgClass] = colorClasses[color].split(' ')
-
-  return (
-    <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow p-6 border border-gray-100">
-      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center mb-4 text-white shadow-md`}>
-        {icon}
+        {/* Balance */}
+        <div style={{
+          backgroundColor: 'white',
+          padding: '20px',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: '#666', fontSize: '14px', margin: '0 0 10px 0' }}>Balance</h3>
+          <p style={{
+            fontSize: '28px',
+            fontWeight: 'bold',
+            color: insights?.balance >= 0 ? '#3b82f6' : '#ef4444',
+            margin: 0
+          }}>
+            ₹{insights?.balance || 0}
+          </p>
+        </div>
       </div>
-      <p className="text-gray-600 text-sm font-medium uppercase tracking-wide">{title}</p>
-      <p className="text-3xl font-bold text-gray-900 mt-2">{value}</p>
-      <div className="mt-4 h-1 w-12 bg-gradient-to-r from-gray-200 to-transparent rounded-full"></div>
+
+      {/* Navigation Buttons */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '15px',
+        marginBottom: '20px'
+      }}>
+        <button
+          onClick={() => navigate('/transactions')}
+          style={{
+            padding: '15px',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold'
+          }}
+        >
+          Transactions
+        </button>
+        <button
+          onClick={() => navigate('/budgets')}
+          style={{
+            padding: '15px',
+            backgroundColor: '#8b5cf6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold'
+          }}
+        >
+          Budgets
+        </button>
+        <button
+          onClick={() => navigate('/goals')}
+          style={{
+            padding: '15px',
+            backgroundColor: '#ec4899',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold'
+          }}
+        >
+          Goals
+        </button>
+        <button
+          onClick={() => navigate('/insights')}
+          style={{
+            padding: '15px',
+            backgroundColor: '#06b6d4',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 'bold'
+          }}
+        >
+          Insights
+        </button>
+      </div>
+
+      {/* Recent Transactions */}
+      <div style={{
+        backgroundColor: 'white',
+        padding: '20px',
+        borderRadius: '8px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+      }}>
+        <h2 style={{ color: '#333', marginTop: 0 }}>Recent Transactions</h2>
+        {insights?.transactions && insights.transactions.length > 0 ? (
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '2px solid #ddd' }}>
+                <th style={{ textAlign: 'left', padding: '10px', color: '#666', fontWeight: 'bold' }}>Type</th>
+                <th style={{ textAlign: 'left', padding: '10px', color: '#666', fontWeight: 'bold' }}>Amount</th>
+                <th style={{ textAlign: 'left', padding: '10px', color: '#666', fontWeight: 'bold' }}>Category</th>
+                <th style={{ textAlign: 'left', padding: '10px', color: '#666', fontWeight: 'bold' }}>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {insights.transactions.slice(0, 5).map((transaction, index) => (
+                <tr key={index} style={{ borderBottom: '1px solid #eee' }}>
+                  <td style={{ padding: '10px', color: '#666' }}>
+                    {transaction.type === 'income' ? 'Income' : 'Expense'}
+                  </td>
+                  <td style={{
+                    padding: '10px',
+                    fontWeight: 'bold',
+                    color: transaction.type === 'income' ? '#10b981' : '#ef4444'
+                  }}>
+                    {transaction.type === 'income' ? '+' : '-'}₹{transaction.amount}
+                  </td>
+                  <td style={{ padding: '10px', color: '#666' }}>{transaction.category}</td>
+                  <td style={{ padding: '10px', color: '#666' }}>{transaction.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p style={{ color: '#999' }}>No transactions yet</p>
+        )}
+      </div>
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import React from 'react'
 import { transactionService } from '../services/api'
 import { formatCurrency, formatDate } from '../utils/helpers'
-import { Plus, Download, Filter, Trash2, Edit2, TrendingUp, TrendingDown } from 'lucide-react'
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = React.useState([])
@@ -56,21 +55,20 @@ export default function TransactionsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600 font-medium">Loading transactions...</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontWeight: 'bold', color: '#666' }}>Loading transactions...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
+    <div style={{ padding: '20px' }}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white shadow-lg">
-        <h1 className="text-4xl font-bold mb-2">💳 Transactions</h1>
-        <p className="text-blue-100">Track all your income and expenses</p>
+      <div style={{ backgroundColor: '#3b82f6', color: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
+        <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: '0' }}>💳 Transactions</h1>
+        <p style={{ margin: '10px 0 0 0', color: '#e0f2fe' }}>Track all your income and expenses</p>
       </div>
 
       {/* Stats */}
