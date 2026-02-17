@@ -1,4 +1,5 @@
 import axios from 'axios'
+import MockAPI from './mockApi'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -28,21 +29,58 @@ api.interceptors.response.use(
   }
 )
 
+// Use Mock API when backend is unavailable
+const USE_MOCK_API = true // Set to false when you have real backend
+
 export const authService = {
-  register: (email, password, name) =>
-    api.post('/auth/register', { email, password, name }),
-  login: (email, password) =>
-    api.post('/auth/login', { email, password }),
+  register: async (email, password, name) => {
+    if (USE_MOCK_API) {
+      const result = await MockAPI.register(email, password, name)
+      return { data: result.data, status: result.status }
+    }
+    return api.post('/auth/register', { email, password, name })
+  },
+  login: async (email, password) => {
+    if (USE_MOCK_API) {
+      const result = await MockAPI.login(email, password)
+      if (result.status === 200) {
+        localStorage.setItem('token', result.data.token)
+        localStorage.setItem('user', JSON.stringify(result.data.user))
+      }
+      return { data: result.data, status: result.status }
+    }
+    return api.post('/auth/login', { email, password })
+  },
   logout: () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
+  },
+  getProfile: async () => {
+    if (USE_MOCK_API) {
+      const result = await MockAPI.getProfile()
+      return { data: result.data }
+    }
+    return api.get('/auth/profile')
   }
 }
 
+
 export const transactionService = {
-  getAll: (params) => api.get('/transactions', { params }),
+  getAll: async (params) => {
+    if (USE_MOCK_API) {
+      const result = await MockAPI.getTransactions()
+      return { data: result.data, status: result.status }
+    }
+    return api.get('/transactions', { params })
+  },
   getOne: (id) => api.get(`/transactions/${id}`),
-  create: (data) => api.post('/transactions', data),
+  create: async (data) => {
+    if (USE_MOCK_API) {
+      const result = await MockAPI.addTransaction(data.type, data.amount, data.category, data.description)
+      return { data: result.data }
+    }
+    return api.post('/transactions', data)
+  },
   update: (id, data) => api.put(`/transactions/${id}`, data),
   delete: (id) => api.delete(`/transactions/${id}`),
   import: (file) => {
@@ -55,7 +93,13 @@ export const transactionService = {
 }
 
 export const budgetService = {
-  getAll: () => api.get('/budgets'),
+  getAll: async () => {
+    if (USE_MOCK_API) {
+      const result = await MockAPI.getBudgets()
+      return { data: result.data }
+    }
+    return api.get('/budgets')
+  },
   getOne: (id) => api.get(`/budgets/${id}`),
   create: (data) => api.post('/budgets', data),
   update: (id, data) => api.put(`/budgets/${id}`, data),
@@ -63,17 +107,41 @@ export const budgetService = {
 }
 
 export const goalService = {
-  getAll: () => api.get('/goals'),
+  getAll: async () => {
+    if (USE_MOCK_API) {
+      const result = await MockAPI.getGoals()
+      return { data: result.data }
+    }
+    return api.get('/goals')
+  },
   getOne: (id) => api.get(`/goals/${id}`),
-  create: (data) => api.post('/goals', data),
+  create: async (data) => {
+    if (USE_MOCK_API) {
+      const result = await MockAPI.addGoal(data.name, data.targetAmount, data.targetDate)
+      return { data: result.data }
+    }
+    return api.post('/goals', data)
+  },
   update: (id, data) => api.put(`/goals/${id}`, data),
   delete: (id) => api.delete(`/goals/${id}`)
 }
 
 export const insightService = {
-  getInsights: () => api.get('/insights'),
+  getInsights: async () => {
+    if (USE_MOCK_API) {
+      const result = await MockAPI.getInsights()
+      return { data: result.data }
+    }
+    return api.get('/insights')
+  },
   getPredictions: (days = 30) => api.get(`/predictions?days=${days}`),
-  getDashboard: () => api.get('/dashboard'),
+  getDashboard: async () => {
+    if (USE_MOCK_API) {
+      const result = await MockAPI.getInsights()
+      return { data: result.data }
+    }
+    return api.get('/dashboard')
+  },
   getSpendingTrends: () => api.get('/trends')
 }
 
