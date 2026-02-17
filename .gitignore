@@ -1,0 +1,143 @@
+# .gitignore for FinHealthTracker Monorepo
+
+# ============================================
+# Dependencies
+# ============================================
+node_modules/
+npm-debug.log*
+npm-error.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ============================================
+# Environment Variables (IMPORTANT!)
+# ============================================
+.env
+.env.local
+.env.*.local
+.env.example  (keep this as template)
+
+# ============================================
+# Build outputs
+# ============================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+
+# ============================================
+# IDE & Editor
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.AppleDouble
+.LSOverride
+*.code-workspace
+
+# ============================================
+# OS Files
+# ============================================
+Thumbs.db
+.DS_Store
+.AppleDouble
+
+# ============================================
+# Testing
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+
+# ============================================
+# Temporary files
+# ============================================
+tmp/
+temp/
+*.tmp
+*.bak
+
+# ============================================
+# Database (Local development)
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+*.aqua
+
+# ============================================
+# Logs
+# ============================================
+logs/
+*.log
+
+# ============================================
+# Python (for AI Service if needed)
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.pytest_cache/
+
+# ============================================
+# Docker
+# ============================================
+.dockerignore
+
+# ============================================
+# VS Code settings
+# ============================================
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# ============================================
+# Git
+# ============================================
+.git/
+.gitmodules
+
+# ============================================
+# Frontend specific
+# ============================================
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+frontend/.parcel-cache/
+
+# ============================================
+# Backend specific
+# ============================================
+backend/node_modules/
+backend/.env
+backend/.env.local
+backend/finhealthtracker.db
+backend/logs/
+
+# ============================================
+# OS & IDE Files
+# ============================================
+**/.DS_Store
+**/.vscode
+**/.idea
+**/*.swp
+**/*.swo
+**/~
+
+# ============================================
+# Optional npm cache
+# ============================================
+.npm/
+.eslintcache/

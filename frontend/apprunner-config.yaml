@@ -1,0 +1,86 @@
+# App Runner Service Configuration - Frontend
+# Reference: https://docs.aws.amazon.com/apprunner/latest/dg/service-create.html
+
+version: 1.0
+
+# Service Name
+serviceName: finhealthtracker-frontend
+
+# Source Configuration (कोई एक use करें)
+source:
+  # Option 1: GitHub Repository (Auto-Deploy)
+  repository:
+    type: GITHUB
+    owner: jantaoad
+    name: finhealthtracker
+    branch: main
+    autoDeployment: true
+  
+  # Option 2: Amazon ECR (Docker Image)
+  image:
+    imageIdentifier: YOUR_AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/finhealthtracker-frontend:latest
+    imageRepositoryType: ECR
+
+# Instance Configuration
+instanceConfig:
+  cpu: 0.5      # 0.25, 0.5, 1, 2
+  memory: 1     # 1, 2, 3, 4 (GB)
+  
+# Port Configuration
+portConfiguration:
+  port: 3000
+  protocol: HTTP
+
+# Build Configuration (GitHub से deploy करते समय)
+build:
+  buildCommand:
+    - npm ci --legacy-peer-deps
+    - npm run build
+  startCommand:
+    - npm start
+  runtimeEnvironmentVariables:
+    NODE_ENV: production
+
+# Environment Variables
+environmentVariables:
+  - name: VITE_API_URL
+    value: https://finhealthtracker-backend-hash.awsapprunner.com
+  - name: NODE_ENV
+    value: production
+
+# Auto Scaling
+autoScaling:
+  maxConcurrency: 100
+  maxSize: 10
+  minSize: 1
+
+# Health Check
+healthCheck:
+  protocol: HTTP
+  path: /
+  interval: 30
+  timeout: 30
+  healthyThreshold: 1
+  unhealthyThreshold: 5
+
+# Network Configuration (Optional)
+network:
+  ingressConfiguration:
+    isPubliclyAccessible: true
+
+# IAM Role
+iamRole: service-role
+
+# Tags
+tags:
+  - key: Project
+    value: FinHealthTracker
+  - key: Environment
+    value: Production
+  - key: Service
+    value: Frontend
+
+# Monitoring
+observability:
+  traceConfiguration:
+    enabled: false

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "nixpacks"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "startCommand": "npm start",
+    "restartPolicyType": "on_failure",
+    "restartPolicyMaxRetries": 5
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": 10000,
+    "JWT_SECRET": "${{ secrets.JWT_SECRET }}",
+    "JWT_EXPIRE": "7d"
+  }
+}

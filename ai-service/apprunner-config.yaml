@@ -1,0 +1,107 @@
+# App Runner Service Configuration - AI Service
+# Reference: https://docs.aws.amazon.com/apprunner/latest/dg/service-create.html
+
+version: 1.0
+
+# Service Name
+serviceName: finhealthtracker-ai-service
+
+# Source Configuration (Docker Image)
+source:
+  image:
+    imageIdentifier: YOUR_AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/finhealthtracker-ai-service:latest
+    imageRepositoryType: ECR
+
+# Instance Configuration (ML models need more resources)
+instanceConfig:
+  cpu: 2        # 0.25, 0.5, 1, 2
+  memory: 4     # 1, 2, 3, 4 (GB)
+
+# Port Configuration
+portConfiguration:
+  port: 5000
+  protocol: HTTP
+
+# Environment Variables
+environmentVariables:
+  - name: FLASK_ENV
+    value: production
+  - name: PORT
+    value: "5000"
+  
+  # Backend Integration
+  - name: BACKEND_URL
+    value: https://finhealthtracker-backend-hash.awsapprunner.com
+  - name: BACKEND_API_KEY
+    value: your-api-key-here
+  
+  # AI Model Configuration
+  - name: MODEL_PATH
+    value: /app/models
+  - name: MODEL_TYPE
+    value: production
+  - name: CACHE_ENABLED
+    value: "true"
+  
+  # Logging
+  - name: LOG_LEVEL
+    value: INFO
+  - name: DEBUG
+    value: "false"
+  
+  # Performance
+  - name: MAX_WORKERS
+    value: "4"
+  - name: TIMEOUT
+    value: "300"
+
+# Auto Scaling (For AI - keep stable)
+autoScaling:
+  maxConcurrency: 100
+  maxSize: 5   # Limit for cost control
+  minSize: 1
+
+# Health Check Configuration
+healthCheck:
+  protocol: HTTP
+  path: /health
+  interval: 30
+  timeout: 10
+  healthyThreshold: 1
+  unhealthyThreshold: 3
+
+# Network Configuration
+network:
+  ingressConfiguration:
+    isPubliclyAccessible: true
+
+# IAM Role
+iamRole: finhealthtracker-apprunner-role
+
+# Monitoring & Observability
+observability:
+  traceConfiguration:
+    enabled: false
+  # CloudWatch metrics enabled by default
+  metricsEnabled: true
+
+# Tags
+tags:
+  - key: Project
+    value: FinHealthTracker
+  - key: Environment
+    value: Production
+  - key: Service
+    value: AIService
+  - key: Component
+    value: MachineLearning
+  - key: CostCenter
+    value: Engineering
+
+# Advanced Settings
+advancedSettings:
+  # Enable CloudWatch logs
+  logsConfiguration:
+    enabled: true
+  # Don't expose to public initially for testing
+  preferPublicAddress: true
